@@ -1,0 +1,22 @@
+name: Dockerized CI
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+    workflow_dispatch:
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Build the test Docker image
+              uses: docker build . --file Dockerfile.test --tag rest-api-tests4
+
+            - name: Run tests in Docker
+              uses: docker run --rm rest-api-tests
+            
+            
