@@ -1,49 +1,56 @@
-# my-first-ci-project
+# Dockerized REST API
 
-A simple Python project demonstrating Continuous Integration (CI) using GitHub Actions.
+This project demonstrates the evolution of a simple Python library into a fully containerized RESTful API using Docker and Flask. The original CI pipeline for the library's unit tests has been adapted to test the new API endpoints within a Docker container, ensuring a consistent and reproducible environment.
 
-## Project Structure
+The API provides standard CRUD (Create, Read, Update, Delete) operations for a simple collection of in-memory items.
 
-- `my_module/`: Contains the core Python functions (e.g., `add`, `subtract`, `power`).
-- `tests/`: Contains `pytest` unit tests for the functions in `my_module/`.
-- `requirements.txt`: Lists the Python dependencies required for this project (`pytest`).
-- `.github/workflows/ci.yml`: Configures the GitHub Actions workflow to run tests automatically on every push to `main`.
+[![Dockerized CI](https://github.com/CCLynch/2-dockerized-rest-api/actions/workflows/ci.yml/badge.svg)](https://github.com/CCLynch/2-dockerized-rest-api/actions/workflows/ci.yml)
 
-## Setup and Local Development
+## Project Philosophy
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/CCLynch/ds6620_cicd_1.git
-    cd ds6620_cicd_1
-    ```
+The primary goal was to create a standardized development and testing environment using containers. This approach solves the "it works on my machine" problem by packaging the application, its dependencies, and its runtime into a single, portable Docker image.
 
-2.  **Create and activate a virtual environment:**
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
+-   **RESTful Design**: The API follows REST principles, using different HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`) and endpoints (`/items`, `/items/<id>`) to manage a collection of resources.
+-   **Test-Driven Development (TDD)**: The API endpoints were developed using a TDD approach. Tests were written first to define the expected behavior (including status codes like `200`, `201`, `404`), driving the implementation of the application code.
+-   **Separation of Concerns**: The project uses two distinct `Dockerfile` configurations:
+    -   `Dockerfile.api`: For building an image that runs the live API server.
+    -   `Dockerfile.test`: For building an image that runs the `pytest` suite and exits, providing a clear pass/fail signal for CI.
+-   **Automation**: User-friendly shell scripts (`run_api.sh`, `run_tests.sh`) simplify local Docker commands. A GitHub Actions workflow (`ci.yml`) automates the test execution on every push, ensuring code quality and reliability.
 
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+## Local Development and Testing
 
-4.  **Run tests locally:**
-    ```bash
-    python -m pytest
-    ```
+### Running the API
+
+This command builds the API image and starts a container in the background.
+
+```bash
+# Make the script executable (only needed once)
+chmod +x run_api.sh
+
+# Run the script
+./run_api.sh
+```
+
+The API will be accessible at `http://localhost:5001`.
+
+To stop and remove the container:
+```bash
+docker stop rest-api-container
+docker rm rest-api-container
+```
+
+### Running the Tests
+
+This command builds the test image, runs the complete `pytest` suite inside a container, and then removes the container. The script will exit with a `0` on success and a non-zero code on failure.
+
+```bash
+# Make the script executable (only needed once)
+chmod +x run_tests.sh
+
+# Run the script
+./run_tests.sh
+```
 
 ## Continuous Integration
 
-This project uses GitHub Actions for CI. Any push to the `main` branch will automatically trigger the workflow defined in `.github/workflows/ci.yml`. This workflow will:
-
-1.  Check out the code.
-2.  Set up a Python environment.
-3.  Install project dependencies.
-4.  Run all `pytest` unit tests.
-
-If all tests pass, the build is considered successful.
-
-### CI Status
-
-[![Python CI](https://github.com/CCLynch/ds6620_cicd_1/actions/workflows/ci.yml/badge.svg)](https://github.com/CCLynch/ds6620_cicd_1/actions/workflows/ci.yml)
+This project uses GitHub Actions to automatically build the test image and run the test suite on every push to the `main` branch. The workflow is defined in `.github/workflows/ci.yml`. The status badge at the top of this README reflects the result of the latest run.
